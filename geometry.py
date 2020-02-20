@@ -16,12 +16,12 @@ import numpy as np
 from const import *
 
 def computeCoordinate(start, length, angle):
-    """Compute the end cooridinate based on the given start position, length and angle.
+    """Compute the end coordinate based on the given start position, length and angle.
 
         Args:
             start (tuple): base of the arm link. (x-coordinate, y-coordinate)
             length (int): length of the arm link
-            angle (int): degree of the arm link from x-axis to couter-clockwise
+            angle (int): degree of the arm link from x-axis to counter-clockwise
 
         Return:
             End position (int,int):of the arm link, (x-coordinate, y-coordinate)

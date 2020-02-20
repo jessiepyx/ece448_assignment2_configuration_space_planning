@@ -13,7 +13,7 @@ pygame
 numpy (optional)
 ```
 ## Running:
-The main file to run the mp is mp1.py:
+The main file to run the mp is mp2.py:
 
 ```
 usage: mp2.py [-h] [--map MAP_NAME] [--method {bfs}]
