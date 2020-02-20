@@ -15,6 +15,41 @@ import math
 import numpy as np
 from const import *
 
+
+def square_distance_seg2point(start, end, point):
+    """Compute the square of distance between a line segment and a point.
+
+        Args:
+            start: one end of the segment (x1, y1)
+            end: the other end the segment (x2, y2)
+            point: (x0, y0)
+
+        Returns:
+            float: distance * distance
+    """
+    x1, y1 = start
+    x2, y2 = end
+    x0, y0 = point
+    # foot of perpendicular (x, y)
+    try:
+        x = float((x2 - x1) * (y0 - y1)) / 2 / (y2 - y1) + float((x0 + x1)) / 2
+    except ZeroDivisionError:
+        # line is approximately horizontal
+        x = x0
+    try:
+        y = float((y2 - y1) * (x0 - x1)) / 2 / (x2 - x1) + float((y0 + y1)) / 2
+    except ZeroDivisionError:
+        # line is approximately vertical
+        y = y0
+    # if the foot is not within the segment, compute distance to both endpoints instead
+    if x <= min(x1, x2) or x >= max(x1, x2) or y <= min(y1, y2) or y >= max(y1, y2):
+        return min((x0 - x1) ** 2 + (y0 - y1) ** 2, (x0 - x2) ** 2 + (y0 - y2) ** 2)
+    else:
+        numerator = ((y0 - y2) * (x1 - x2) - (x0 - x2) * (y1 - y2)) ** 2
+        denominator = (y1 - y2) ** 2 + (x1 - x2) ** 2
+        return float(numerator) / denominator
+
+
 def computeCoordinate(start, length, angle):
     """Compute the end coordinate based on the given start position, length and angle.
 
@@ -26,8 +61,11 @@ def computeCoordinate(start, length, angle):
         Return:
             End position (int,int):of the arm link, (x-coordinate, y-coordinate)
     """
+    rad = angle * np.pi / 180
+    x = start[0] + int(length * np.cos(rad))
+    y = start[1] - int(length * np.sin(rad))
+    return x, y
 
-    return (0, 0)
 
 def doesArmTouchObjects(armPosDist, objects, isGoal=False):
     """Determine whether the given arm links touch any obstacle or goal
@@ -41,7 +79,16 @@ def doesArmTouchObjects(armPosDist, objects, isGoal=False):
         Return:
             True if touched. False if not.
     """
+    for arm in armPosDist:
+        start, end, padding = arm
+        for obj in objects:
+            x, y, r = obj
+            if not isGoal:
+                r += padding
+            if square_distance_seg2point(start, end, (x, y)) <= r ** 2:
+                return True
     return False
+
 
 def doesArmTipTouchGoals(armEnd, goals):
     """Determine whether the given arm tip touch goals
@@ -52,6 +99,11 @@ def doesArmTipTouchGoals(armEnd, goals):
         Return:
             True if arm tick touches any goal. False if not.
     """
+    x0, y0 = armEnd
+    for goal in goals:
+        x, y, r = goal
+        if (x0 - x) ** 2 + (y0 - y) ** 2 <= r ** 2:
+            return True
     return False
 
 
@@ -65,16 +117,24 @@ def isArmWithinWindow(armPos, window):
         Return:
             True if all parts are in the window. False if not.
     """
+    for arm in armPos:
+        start, end = arm
+        x1, y1 = start
+        x2, y2 = end
+        w, h = window
+        if not 0 < x1 < w or not 0 < x2 < w or not 0 < y1 < h or not 0 < y2 < h:
+            return False
     return True
 
 
 if __name__ == '__main__':
-    computeCoordinateParameters = [((150, 190),100,20), ((150, 190),100,40), ((150, 190),100,60), ((150, 190),100,160)]
+    computeCoordinateParameters = [((150, 190), 100, 20), ((150, 190), 100, 40), ((150, 190), 100, 60),
+                                   ((150, 190), 100, 160)]
     resultComputeCoordinate = [(243, 156), (226, 126), (200, 104), (57, 156)]
     testRestuls = [computeCoordinate(start, length, angle) for start, length, angle in computeCoordinateParameters]
     assert testRestuls == resultComputeCoordinate
 
-    testArmPosDists = [((100,100), (135, 110), 4), ((135, 110), (150, 150), 5)]
+    testArmPosDists = [((100, 100), (135, 110), 4), ((135, 110), (150, 150), 5)]
     testObstacles = [[(120, 100, 5)], [(110, 110, 20)], [(160, 160, 5)], [(130, 105, 10)]]
     resultDoesArmTouchObjects = [
         True, True, False, True, False, True, False, True,
@@ -104,7 +164,7 @@ if __name__ == '__main__':
     testResults = [doesArmTipTouchGoals(testArmEnd, testGoal) for testArmEnd in testArmEnds]
     assert resultDoesArmTouchGoals == testResults
 
-    testArmPoss = [((100,100), (135, 110)), ((135, 110), (150, 150))]
+    testArmPoss = [((100, 100), (135, 110)), ((135, 110), (150, 150))]
     testWindows = [(160, 130), (130, 170), (200, 200)]
     resultIsArmWithinWindow = [True, False, True, False, False, True]
     testResults = []
