@@ -79,8 +79,8 @@ def doesArmTouchObjects(armPosDist, objects, isGoal=False):
         Return:
             True if touched. False if not.
     """
-    for arm in armPosDist:
-        start, end, padding = arm
+    for arm_link in armPosDist:
+        start, end, padding = arm_link
         for obj in objects:
             x, y, r = obj
             if not isGoal:
@@ -117,8 +117,8 @@ def isArmWithinWindow(armPos, window):
         Return:
             True if all parts are in the window. False if not.
     """
-    for arm in armPos:
-        start, end = arm
+    for arm_link in armPos:
+        start, end = arm_link
         x1, y1 = start
         x2, y2 = end
         w, h = window
