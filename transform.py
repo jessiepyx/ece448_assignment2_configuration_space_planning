@@ -1,4 +1,3 @@
-
 # transform.py
 # ---------------
 # Licensing Information:  You are free to use or extend this projects for
@@ -19,6 +18,7 @@ from search import *
 from geometry import *
 from const import *
 from util import *
+
 
 def transformToMaze(arm, goals, obstacles, window, granularity):
     """This function transforms the given 2D map to the maze in MP1.
