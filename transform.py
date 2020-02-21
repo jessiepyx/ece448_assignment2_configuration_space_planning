@@ -45,13 +45,12 @@ def transformToMaze(arm, goals, obstacles, window, granularity):
         for j in range(len(input_map[0])):
             if i != start_x or j != start_y:
                 arm.setArmAngle(idxToAngle((i, j), offsets, granularity))
-                if doesArmTipTouchGoals(arm.getEnd(), goals):
+                arm_links = arm.getArmPosDist()
+                if not isArmWithinWindow(arm.getArmPos(), window) or doesArmTouchObjects(arm_links, obstacles, False):
+                    input_map[i][j] = WALL_CHAR
+                elif doesArmTipTouchGoals(arm.getEnd(), goals):
                     input_map[i][j] = OBJECTIVE_CHAR
-                else:
-                    arm_links = arm.getArmPosDist()
-                    if doesArmTouchObjects(arm_links, goals, True) or \
-                            doesArmTouchObjects(arm_links, obstacles, False) or \
-                            not isArmWithinWindow(arm.getArmPos(), window):
-                        input_map[i][j] = WALL_CHAR
+                elif doesArmTouchObjects(arm_links, goals, True):
+                    input_map[i][j] = WALL_CHAR
     maze = Maze(input_map, offsets, granularity)
     return maze

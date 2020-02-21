@@ -31,20 +31,11 @@ def square_distance_seg2point(start, end, point):
     x2, y2 = end
     x0, y0 = point
     # foot of perpendicular (x, y)
-    try:
-        x = float((y0 - y1) * (y2 - y1) * (x2 - x1) + (x2 - x1) ** 2 * x0 + (y2 - y1) ** 2 * x1) / (
-                (x2 - x1) ** 2 + (y2 - y1) ** 2)
-    except ZeroDivisionError:
-        # line is approximately horizontal
-        x = x0
-    try:
-        y = float((x0 - x1) * (x2 - x1) * (y2 - y1) + (y2 - y1) ** 2 * y0 + (x2 - x1) ** 2 * y1) / (
-                (y2 - y1) ** 2 + (x2 - x1) ** 2)
-    except ZeroDivisionError:
-        # line is approximately vertical
-        y = y0
-    # if the foot is not within the segment, compute distance to both endpoints instead
-    if x <= min(x1, x2) or x >= max(x1, x2) or y <= min(y1, y2) or y >= max(y1, y2):
+    x = float((y0 - y1) * (y2 - y1) * (x2 - x1) + (x2 - x1) ** 2 * x0 + (y2 - y1) ** 2 * x1) / (
+            (x2 - x1) ** 2 + (y2 - y1) ** 2)
+    y = float((x0 - x1) * (x2 - x1) * (y2 - y1) + (y2 - y1) ** 2 * y0 + (x2 - x1) ** 2 * y1) / (
+            (y2 - y1) ** 2 + (x2 - x1) ** 2)
+    if x < min(x1, x2) or x > max(x1, x2) or y < min(y1, y2) or y > max(y1, y2):
         return min((x0 - x1) ** 2 + (y0 - y1) ** 2, (x0 - x2) ** 2 + (y0 - y2) ** 2)
     else:
         numerator = ((y0 - y2) * (x1 - x2) - (x0 - x2) * (y1 - y2)) ** 2
