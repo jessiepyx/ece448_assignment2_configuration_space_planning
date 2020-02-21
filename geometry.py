@@ -124,7 +124,7 @@ def isArmWithinWindow(armPos, window):
         x1, y1 = start
         x2, y2 = end
         w, h = window
-        if not 0 < x1 < w or not 0 < x2 < w or not 0 < y1 < h or not 0 < y2 < h:
+        if not 0 <= x1 <= w or not 0 <= x2 <= w or not 0 <= y1 <= h or not 0 <= y2 <= h:
             return False
     return True
 
