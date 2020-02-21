@@ -56,7 +56,7 @@ def bfs(maze):
         new_objs = objs
         if pos in new_objs:
             break
-        neighbors = maze.getNeighbors(pos[0], pos[1])
+        neighbors = maze.getNeighbors(pos[0], pos[1], pos[2])
         for new_pos in neighbors:
             new_state = (new_pos, tuple(new_objs))
             if new_state not in visited:

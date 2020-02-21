@@ -26,14 +26,15 @@ class Maze:
         self.offsets = offsets
         self.granularity = granularity
 
-        self.__dimensions = [len(input_map), len(input_map[0])]
+        self.__dimensions = [len(input_map), len(input_map[0]), len(input_map[0][0])]
         self.__map = input_map
         for x in range(self.__dimensions[ALPHA]):
             for y in range(self.__dimensions[BETA]):
-                if self.__map[x][y] == START_CHAR:
-                    self.__start = idxToAngle((x, y), self.offsets, granularity)
-                elif self.__map[x][y] == OBJECTIVE_CHAR:
-                    self.__objective.append(idxToAngle((x, y), self.offsets, granularity))
+                for z in range(self.__dimensions[GAMMA]):
+                    if self.__map[x][y][z] == START_CHAR:
+                        self.__start = idxToAngle((x, y, z), self.offsets, granularity)
+                    elif self.__map[x][y][z] == OBJECTIVE_CHAR:
+                        self.__objective.append(idxToAngle((x, y, z), self.offsets, granularity))
 
         if not self.__start:
             print("Maze has no start")
@@ -43,26 +44,26 @@ class Maze:
             print("Maze has no objectives")
             raise SystemExit
 
-    def getChar(self, alpha, beta):
-        x, y = angleToIdx((alpha, beta), self.offsets, self.granularity)
-        return self.__map[x][y]
+    def getChar(self, alpha, beta, gamma):
+        x, y, z = angleToIdx((alpha, beta, gamma), self.offsets, self.granularity)
+        return self.__map[x][y][z]
 
     # Returns True if the given position is the location of a wall
-    def isWall(self, alpha, beta):
-        return self.getChar(alpha, beta) == WALL_CHAR
+    def isWall(self, alpha, beta, gamma):
+        return self.getChar(alpha, beta, gamma) == WALL_CHAR
 
-    # Rturns True if the given position is the location of an objective
-    def isObjective(self, alpha, beta):
-        return self.getChar(alpha, beta) == OBJECTIVE_CHAR
+    # Returns True if the given position is the location of an objective
+    def isObjective(self, alpha, beta, gamma):
+        return self.getChar(alpha, beta, gamma) == OBJECTIVE_CHAR
 
-    # Returns the start position as a tuple of (alpha, beta)
+    # Returns the start position as a tuple of (alpha, beta, gamma)
     def getStart(self):
         return self.__start
 
     def setStart(self, start):
         self.__start = start
 
-    # Returns the dimensions of the maze as a (alpha, beta) tuple
+    # Returns the dimensions of the maze as a (alpha, beta, gamma) tuple
     def getDimensions(self):
         return self.__dimensions
 
@@ -73,32 +74,36 @@ class Maze:
     def setObjectives(self, objectives):
         self.__objective = objectives
 
-    # Check if the agent can move into a specific alpha and beta
-    def isValidMove(self, alpha, beta):
-        x, y = angleToIdx((alpha, beta), self.offsets, self.granularity)
+    # Check if the agent can move into a specific alpha, beta and gamma
+    def isValidMove(self, alpha, beta, gamma):
+        x, y, z = angleToIdx((alpha, beta, gamma), self.offsets, self.granularity)
         return 0 <= x < self.getDimensions()[ALPHA] and \
                0 <= y < self.getDimensions()[BETA] and \
-               not self.isWall(alpha, beta)
+               0 <= z < self.getDimensions()[GAMMA] and \
+               not self.isWall(alpha, beta, gamma)
 
-    # Returns list of neighboring squares that can be moved to from the given alpha, beta
-    def getNeighbors(self, alpha, beta):
+    # Returns list of neighboring squares that can be moved to from the given alpha, beta and gamma
+    def getNeighbors(self, alpha, beta, gamma):
         possibleNeighbors = [
-            (alpha + self.granularity, beta),
-            (alpha - self.granularity, beta),
-            (alpha, beta + self.granularity),
-            (alpha, beta - self.granularity)
+            (alpha + self.granularity, beta, gamma),
+            (alpha - self.granularity, beta, gamma),
+            (alpha, beta + self.granularity, gamma),
+            (alpha, beta - self.granularity, gamma),
+            (alpha, beta, gamma + self.granularity),
+            (alpha, beta, gamma - self.granularity),
         ]
         neighbors = []
-        for a, b in possibleNeighbors:
-            if self.isValidMove(a, b):
-                neighbors.append((a, b))
+        for a, b, c in possibleNeighbors:
+            if self.isValidMove(a, b, c):
+                neighbors.append((a, b, c))
         return neighbors
 
     def saveToFile(self, filename):
+        assert self.__dimensions[2] == 1
         outputMap = ""
         for beta in range(self.__dimensions[1]):
             for alpha in range(self.__dimensions[0]):
-                outputMap += self.__map[alpha][beta]
+                outputMap += self.__map[alpha][beta][0]
             outputMap += "\n"
 
         with open(filename, 'w') as f:
@@ -111,13 +116,13 @@ class Maze:
         for i in range(1, len(path)):
             prev = path[i - 1]
             cur = path[i]
-            dist = abs(prev[0] - cur[0]) + abs(prev[1] - cur[1])
+            dist = abs(prev[0] - cur[0]) + abs(prev[1] - cur[1]) + abs(prev[2] - cur[2])
             if dist != self.granularity:
                 return "Not single hop"
 
         # Second, check whether it is valid move
         for pos in path:
-            if not self.isValidMove(pos[0], pos[1]):
+            if not self.isValidMove(pos[0], pos[1], pos[2]):
                 return "Not valid move"
 
         # Last, check whether it ends up at one of goals

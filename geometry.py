@@ -21,7 +21,7 @@ def square_distance_seg2point(start, end, point):
 
         Args:
             start: one end of the segment (x1, y1)
-            end: the other end the segment (x2, y2)
+            end: the other end of the segment (x2, y2)
             point: (x0, y0)
 
         Returns:
