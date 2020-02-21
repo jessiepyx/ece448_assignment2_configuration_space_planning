@@ -21,10 +21,12 @@ This file contains search functions.
 from collections import deque
 from heapq import heappop, heappush
 
+
 def search(maze, searchMethod):
     return {
         "bfs": bfs,
     }.get(searchMethod, [])(maze)
+
 
 def bfs(maze):
     # Write your code here
@@ -32,4 +34,40 @@ def bfs(maze):
     This function returns optimal path in a list, which contains start and objective.
     If no path found, return None. 
     """
-    return []
+    # Copied from MP1 and modified
+    # Single objective
+    # state = (position, obj_list)
+    parent = dict()
+    path = []
+    pos = maze.getStart()
+    objs = maze.getObjectives()
+    init_state = (pos, tuple(objs))
+    cur_state = init_state
+    frontier = deque()
+    frontier.append(init_state)
+    # visited nodes include frontier
+    visited = set()
+    visited.add(cur_state)
+    while len(frontier) > 0:
+        cur_state = frontier.popleft()
+        pos = cur_state[0]
+        objs_tuple = cur_state[1]
+        objs = list(objs_tuple)
+        new_objs = objs
+        if pos in new_objs:
+            break
+        neighbors = maze.getNeighbors(pos[0], pos[1])
+        for new_pos in neighbors:
+            new_state = (new_pos, tuple(new_objs))
+            if new_state not in visited:
+                parent[new_state] = cur_state
+                frontier.append(new_state)
+                visited.add(new_state)
+    while cur_state != init_state:
+        path.append(cur_state[0])
+        cur_state = parent[cur_state]
+    if len(path) == 0:
+        return None
+    path.append(cur_state[0])
+    path.reverse()
+    return path
