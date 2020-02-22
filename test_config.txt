@@ -35,8 +35,7 @@ Obstacles : [
             ]
 
 Goals : [
-            (240, 80, 10),               # (x-coordinate, y-coordinate, radius)        
-            (50, 80, 10)
+            (240, 80, 10)               # (x-coordinate, y-coordinate, radius)        
         ] 
 
 [BasicMap]

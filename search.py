@@ -63,11 +63,12 @@ def bfs(maze):
                 parent[new_state] = cur_state
                 frontier.append(new_state)
                 visited.add(new_state)
+    # No path found, return None
+    if cur_state[0] not in objs:
+        return None
     while cur_state != init_state:
         path.append(cur_state[0])
         cur_state = parent[cur_state]
-    if len(path) == 0:
-        return None
     path.append(cur_state[0])
     path.reverse()
     return path
